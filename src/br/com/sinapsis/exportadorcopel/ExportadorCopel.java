@@ -279,23 +279,23 @@ public class ExportadorCopel {
 				mapPosicaoAlimentores.put(alimentador.getCodigo(), cellCounter);
 			}
 			
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_IA");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IB");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_IB");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IC");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_IC");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_POT_ATIVA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_MW");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_POT_REAT");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_MVAR");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_FATOR_POT");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_FPOT");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_VAB");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOB");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_VBC");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOC");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_RL_" + alimentador.getSigla() + "_VCA");
 			cellCounter++;
 		}
 		this.makeHeaderBold(rowHeader, qtAlim);
@@ -323,8 +323,8 @@ public class ExportadorCopel {
 		medicao.setCorrFaseA(Integer.parseInt(fields[9]));
 		medicao.setCorrFaseB(Integer.parseInt(fields[10]));
 		medicao.setCorrFaseC(Integer.parseInt(fields[11]));
-		medicao.setPotAtiva(Integer.parseInt(fields[12]));
-		medicao.setPotReat(Integer.parseInt(fields[13]));
+		medicao.setPotAtiva(Double.parseDouble(fields[12]) / 1000);
+		medicao.setPotReat(Double.parseDouble(fields[13]) / 1000);
 		medicao.setFatorPot(Double.parseDouble(fields[14].replace(',', '.')));
 		medicao.setTensaoA(Double.parseDouble(fields[15].replace(',', '.')));
 		medicao.setTensaoB(Double.parseDouble(fields[16].replace(',', '.')));

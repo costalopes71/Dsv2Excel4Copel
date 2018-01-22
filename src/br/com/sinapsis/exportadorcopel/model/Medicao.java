@@ -6,8 +6,8 @@ public class Medicao {
 	private int corrFaseA;
 	private int corrFaseB;
 	private int corrFaseC;
-	private int potAtiva;
-	private int potReat;
+	private double potAtiva;
+	private double potReat;
 	private double fatorPot;
 	private double tensaoA;
 	private double tensaoB;
@@ -45,19 +45,19 @@ public class Medicao {
 		this.corrFaseC = corrFaseC;
 	}
 	
-	public int getPotAtiva() {
+	public double getPotAtiva() {
 		return potAtiva;
 	}
 	
-	public void setPotAtiva(int potAtiva) {
+	public void setPotAtiva(double potAtiva) {
 		this.potAtiva = potAtiva;
 	}
 	
-	public int getPotReat() {
+	public double getPotReat() {
 		return potReat;
 	}
 	
-	public void setPotReat(int potReat) {
+	public void setPotReat(double potReat) {
 		this.potReat = potReat;
 	}
 	
