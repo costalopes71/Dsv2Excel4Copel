@@ -74,45 +74,50 @@ public class ExportadorCopel {
 		String line;
 		String lastSubstation = "";
 		while ((line = br.readLine()) != null) {
+			
+			if (line.endsWith("|")) {
+				line = line + "0";
+			}
+			
 			String[] fields = line.split("\\|");
 			
 			/*esta condicao serve para quando mudar a subestacao (uma vez que o arquivo DSV foi ordenado por subestacao pelo
 			método orderDsvFileBySubstation() ) fazer o flush daquela subestacao (ou seja, daquela sheet uma vez que cada
 			sheet é um subestacao), isto é feito para evitar o estouro de memória (é feito a cada subestacao pq uma vez que
 			as linhas sao flushadas elas não estão mais acessíveis em memória).*/
-			if (!lastSubstation.equals(fields[3]) && !lastSubstation.equals("")) {
+			if (!lastSubstation.equals(fields[4]) && !lastSubstation.equals("")) {
 				SXSSFSheet sheetToFlush = wb.getSheet(lastSubstation);
 				sheetToFlush.flushRows();
 			}
 			
-			int codigoSub = Integer.parseInt(fields[3]);
+			int codigoSub = Integer.parseInt(fields[7]);
 			Medicao medicao = this.setMedicaoFromFields(fields);
-			SXSSFSheet sheet = wb.getSheet(fields[3]);
+			SXSSFSheet sheet = wb.getSheet(fields[4]);
 			
 			int initialCell = mapPosicaoAlimentores.get(Integer.parseInt(fields[0]));
 			int rowNum = 0;
 			
 			if (posicoesLinha.containsKey(codigoSub)) {
-				if (posicoesLinha.get(codigoSub).containsKey(fields[2])) {
-					rowNum = posicoesLinha.get(codigoSub).get(fields[2]);
+				if (posicoesLinha.get(codigoSub).containsKey(fields[6])) {
+					rowNum = posicoesLinha.get(codigoSub).get(fields[6]);
 					Row row = sheet.getRow(rowNum);
 					this.writeMedicao(row, medicao, initialCell);
 				} else {
 					Row newRow = this.writeRow(sheet, medicao);
 					rowNum = newRow.getRowNum();
 					this.writeMedicao(newRow, medicao, initialCell);
-					posicoesLinha.get(codigoSub).put(fields[2], rowNum);
+					posicoesLinha.get(codigoSub).put(fields[6], rowNum);
 				}
 			} else {
 				Row newRow = this.writeRow(sheet, medicao);
 				rowNum = newRow.getRowNum();
 				this.writeMedicao(newRow, medicao, initialCell);
 				HashMap<String, Integer> aux = new HashMap<>();
-				aux.put(fields[2], rowNum);
+				aux.put(fields[6], rowNum);
 				posicoesLinha.put(codigoSub, aux);
 			}
 			
-			lastSubstation = fields[3];
+			lastSubstation = fields[4];
 		}
 		
 		this.save(wb, excelPath);
@@ -161,21 +166,24 @@ public class ExportadorCopel {
 			  * o índice 1 do vetor de campos), pega o atributo alimentadores (HashSet) do objeto subestacao que foi 
 			  * criado e adiciona ao HashSet o alimentador. Finalmente, adiciona no HashMap subMap (linha 69 e 70) o 
 			  * objeto subestacao. */
-			if (!subMap.containsKey(Integer.parseInt(fields[3]))) {
+			if (!subMap.containsKey(Integer.parseInt(fields[7]))) {
 				Subestacao subAux = new Subestacao();
-				subAux.setCodigo(Integer.parseInt(fields[3]));
+				subAux.setCodigo(Integer.parseInt(fields[7]));
+				subAux.setSigla(fields[4]);
 				Alimentador alimentador = new Alimentador();
 				alimentador.setCodigo(Integer.parseInt(fields[0]));
+				alimentador.setSigla(fields[2]);
 				subAux.getAlimentadores().add(alimentador);
 				subMap.put(subAux.getCodigo(), subAux);
 				/* Se a subestacao ja existir testa se o alimentador daquele registro lido já existe dentro do HashSet da
 				subestacao, se nao existir, adiciona. */
 			} else {
-				Subestacao sub = subMap.get(Integer.parseInt(fields[3]));
+				Subestacao sub = subMap.get(Integer.parseInt(fields[7]));
 				HashSet<Alimentador> alimentadorSet = sub.getAlimentadores();
 				if (!alimentadorSet.contains(Integer.parseInt(fields[0]))) {
 					Alimentador aux = new Alimentador();
 					aux.setCodigo(Integer.parseInt(fields[0]));
+					aux.setSigla(fields[2]);
 					alimentadorSet.add(aux);
 					sub.setAlimentadores(alimentadorSet);
 					subMap.put(sub.getCodigo(), sub);
@@ -218,7 +226,7 @@ public class ExportadorCopel {
 		
 		while ((line = br.readLine()) != null) {
 			String[] fields = line.split("\\|");
-			int codSub = Integer.parseInt(fields[3]);
+			int codSub = Integer.parseInt(fields[7]);
 			if (mapSub.containsKey(codSub)) {
 				mapSub.get(codSub).add(line);
 			} else {
@@ -248,13 +256,13 @@ public class ExportadorCopel {
 	}
 	
 	private String createOrderedDsvPath() {
-		return dsvPath.substring(0, dsvPath.lastIndexOf(".")) + "_ORDERED.dsv";
+		return dsvPath.substring(0, dsvPath.lastIndexOf(".")) + "_ORDERED.csv";
 	}
 
 	private void createSheets(HashMap<Integer, Subestacao> subMap) {
 		for (Map.Entry<Integer, Subestacao> mapValue : subMap.entrySet()) {
 			Subestacao subestacao = mapValue.getValue();
-			SXSSFSheet sheet = wb.createSheet(String.valueOf(subestacao.getCodigo()));
+			SXSSFSheet sheet = wb.createSheet(subestacao.getSigla());
 			Row rowHeader = sheet.createRow(0);
 			createHeaderSheet(rowHeader, subestacao);
 		}
@@ -271,23 +279,23 @@ public class ExportadorCopel {
 				mapPosicaoAlimentores.put(alimentador.getCodigo(), cellCounter);
 			}
 			
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_IA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IA");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_IB");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IB");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_IC");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_IC");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_POT_ATIVA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_POT_ATIVA");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_POT_REAT");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_POT_REAT");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_FATOR_POT");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_FATOR_POT");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_TENSAOA");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOA");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_TENSAOB");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOB");
 			cellCounter++;
-			rowHeader.createCell(cellCounter).setCellValue(subestacao.getCodigo() + "_" + alimentador.getCodigo() + "_TENSAOC");
+			rowHeader.createCell(cellCounter).setCellValue(subestacao.getSigla() + "_" + alimentador.getSigla() + "_TENSAOC");
 			cellCounter++;
 		}
 		this.makeHeaderBold(rowHeader, qtAlim);
@@ -311,16 +319,16 @@ public class ExportadorCopel {
 	private Medicao setMedicaoFromFields(String[] fields) throws ParseException {
 		Medicao medicao = new Medicao();
 		Utils.replaceNullAndEmptyFields(fields);
-		medicao.setData(fields[2]+ "00");
-		medicao.setCorrFaseA(Integer.parseInt(fields[5]));
-		medicao.setCorrFaseB(Integer.parseInt(fields[6]));
-		medicao.setCorrFaseC(Integer.parseInt(fields[7]));
-		medicao.setPotAtiva(Integer.parseInt(fields[8]));
-		medicao.setPotReat(Integer.parseInt(fields[9]));
-		medicao.setFatorPot(Double.parseDouble(fields[10].replace(',', '.')));
-		medicao.setTensaoA(Double.parseDouble(fields[11].replace(',', '.')));
-		medicao.setTensaoB(Double.parseDouble(fields[12].replace(',', '.')));
-		medicao.setTensaoC(Double.parseDouble(fields[13].replace(',', '.')));
+		medicao.setData(fields[6]+ "00");
+		medicao.setCorrFaseA(Integer.parseInt(fields[9]));
+		medicao.setCorrFaseB(Integer.parseInt(fields[10]));
+		medicao.setCorrFaseC(Integer.parseInt(fields[11]));
+		medicao.setPotAtiva(Integer.parseInt(fields[12]));
+		medicao.setPotReat(Integer.parseInt(fields[13]));
+		medicao.setFatorPot(Double.parseDouble(fields[14].replace(',', '.')));
+		medicao.setTensaoA(Double.parseDouble(fields[15].replace(',', '.')));
+		medicao.setTensaoB(Double.parseDouble(fields[16].replace(',', '.')));
+		medicao.setTensaoC(Double.parseDouble(fields[17].replace(',', '.')));
 		return medicao;
 	}
 	

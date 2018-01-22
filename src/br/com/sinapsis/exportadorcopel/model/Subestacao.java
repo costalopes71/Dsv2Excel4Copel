@@ -5,6 +5,7 @@ import java.util.HashSet;
 public class Subestacao {
 
 	private int codigo;
+	private String sigla;
 	private HashSet<Alimentador> alimentadores;
 	
 	public Subestacao() {
@@ -19,6 +20,14 @@ public class Subestacao {
 		this.codigo = codigo;
 	}
 	
+	public String getSigla() {
+		return sigla;
+	}
+
+	public void setSigla(String sigla) {
+		this.sigla = sigla;
+	}
+
 	public HashSet<Alimentador> getAlimentadores() {
 		return alimentadores;
 	}

@@ -10,7 +10,7 @@ public class Main {
 
 	public static void main(String[] args) throws ParseException {
 		
-		String originFilePath = "C:/Users/usrsnp/Documents/Joao/ArquivoModeloCopel/LEITURA_ALIMENTADOR.dsv";
+		String originFilePath = "C:/Users/usrsnp/Documents/Joao/ArquivoModeloCopel/LEITURA_ALIMENTADOR_NOVO.csv";
 		String destinyFilePath = "C:/Users/usrsnp/Documents/Joao/ArquivoModeloCopel/processed_excel_file_TESTE.xlsx";
 		
 		try {
