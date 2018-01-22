@@ -14,9 +14,9 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
  * @author Joao Lopes
  *
  */
-public final class Utils {
+public final class CopelUtils {
 
-	private Utils() {
+	private CopelUtils() {
 	
 	}
 	

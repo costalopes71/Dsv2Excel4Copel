@@ -22,7 +22,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import br.com.sinapsis.exportadorcopel.model.Alimentador;
 import br.com.sinapsis.exportadorcopel.model.Medicao;
 import br.com.sinapsis.exportadorcopel.model.Subestacao;
-import br.com.sinapsis.exportadorcopel.util.Utils;
+import br.com.sinapsis.exportadorcopel.util.CopelUtils;
 
 /**
  * Classe responsável por exportar os dados de um arquivo DSV da empresa Copel que contém as medições de seus alimentadores
@@ -68,8 +68,8 @@ public class ExportadorCopel {
 		System.out.println("----------------------------------------------------------------");
 		System.out.println("\nWritting data, please wait. This can take several minutes depending on the size of the file\n");
 
-		br = Utils.openBufferedReader(dsvPath);
-		Utils.hasHeader(true, br);
+		br = CopelUtils.openBufferedReader(dsvPath);
+		CopelUtils.hasHeader(true, br);
 		
 		String line;
 		String lastSubstation = "";
@@ -153,9 +153,9 @@ public class ExportadorCopel {
 		System.out.println("Initiating the generation of the TEMPLATE file.");
 		System.out.println("----------------------------------------------------------------");
 
-		br = Utils.openBufferedReader(dsvPath);
+		br = CopelUtils.openBufferedReader(dsvPath);
 		HashMap<Integer, Subestacao> subMap = new HashMap<>();
-		Utils.hasHeader(hasHeader, br);
+		CopelUtils.hasHeader(hasHeader, br);
 
 		String line;
 		while ((line = br.readLine()) != null) {
@@ -216,9 +216,9 @@ public class ExportadorCopel {
 		System.out.println("Initiating the generation of the ordered by substation DSV file.");
 		System.out.println("----------------------------------------------------------------");
 		
-		br = Utils.openBufferedReader(dsvPath);
+		br = CopelUtils.openBufferedReader(dsvPath);
 		String orderedDsvPath = this.createOrderedDsvPath();
-		PrintWriter pw = Utils.createPrintWriter(orderedDsvPath);
+		PrintWriter pw = CopelUtils.createPrintWriter(orderedDsvPath);
 		HashMap<Integer, ArrayList<String>> mapSub = new HashMap<>();
 		String header = br.readLine();
 		pw.println(header);
@@ -318,7 +318,7 @@ public class ExportadorCopel {
 
 	private Medicao setMedicaoFromFields(String[] fields) throws ParseException {
 		Medicao medicao = new Medicao();
-		Utils.replaceNullAndEmptyFields(fields);
+		CopelUtils.replaceNullAndEmptyFields(fields);
 		medicao.setData(fields[6]+ "00");
 		medicao.setCorrFaseA(Integer.parseInt(fields[9]));
 		medicao.setCorrFaseB(Integer.parseInt(fields[10]));
@@ -383,8 +383,8 @@ public class ExportadorCopel {
 
 	private Row writeRow(SXSSFSheet sheet, Medicao medicao) {
 		Row newRow = sheet.createRow(sheet.getLastRowNum() + 1);
-		newRow.createCell(0).setCellValue(Utils.formatDatePattern(medicao.getData()));
-		newRow.createCell(1).setCellValue(Utils.formatHourPattern(medicao.getData()));
+		newRow.createCell(0).setCellValue(CopelUtils.formatDatePattern(medicao.getData()));
+		newRow.createCell(1).setCellValue(CopelUtils.formatHourPattern(medicao.getData()));
 		return newRow;
 	}
 	
